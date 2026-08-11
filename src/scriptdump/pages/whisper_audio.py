@@ -21,7 +21,7 @@ try:
         import scriptdump.libs.huggingface as hf
         from scriptdump.libs.settings import Properties
         from scriptdump.libs.utils import detect_accelerator
-        from scriptdump.libs.utils.audio_pipelines import resample, waveform, spectrum
+        from scriptdump.libs.utils.audio_pipelines import resample, waveform, spectrum, split_audio_tensor, merge_chunk_results, stereoToMono
 except Exception as e:
     print(f"Caught fatal exception: {e}")
 
@@ -227,18 +227,55 @@ if uploaded_files:
 
     # begin conversion
     if samplesJson.get("data").get("channels") > 1:
-        st.error("Stereo audio is not supported yet. Please use mono audio.")
+        audio_samples_data = stereoToMono(resample(
+            decodedAudioFile,
+            target_sample_rate=INFERENCE_SAMPLE_RATE,
+            target_num_channels=INFERENCE_CHANNELS,
+        )).get_all_samples().data if samplesJson.get("data").get("channels") > 1 else audio_samples.data
     else:
-        if parameters.button("Transcribe Audio...", type="primary"):
-            # transcribe
-            with st.spinner("** TRANSCRIBING AUDIO, PLEASE WAIT ... **"):
-                # tensor to numpy..
-                samples_array = audio_samples.data.squeeze().numpy()
+        audio_samples_data = audio_samples.data
+
+    if parameters.button("Transcribe Audio...", type="primary"):
+        with st.spinner("** TRANSCRIBING AUDIO, PLEASE WAIT ... **"):
+            duration_s = audio_samples.duration_seconds
+
+            if duration_s > 30.0 and not return_timestamps:
+                return_timestamps = True
+
+            if duration_s > 30.0:
+                chunk_tensors = split_audio_tensor(
+                    audio_samples_data,
+                    sample_rate=INFERENCE_SAMPLE_RATE,
+                    chunk_duration=30.0,
+                    overlap_duration=2.0,
+                )
+
+                chunk_results: list[dict] = []
+                for i, chunk_tensor in enumerate(chunk_tensors):
+                    st.toast(f"Processing chunk {i + 1}/{len(chunk_tensors)}...")
+                    chunk_array = chunk_tensor.squeeze().numpy()
+                    prediction = whisperPipeline(
+                        chunk_array,
+                        return_timestamps=return_timestamps,
+                        generate_kwargs=generate_kwargs,
+                    )
+                    chunk_results.append(prediction)
+
+                full_text, merged_chunks = merge_chunk_results(
+                    chunk_results,
+                    sample_rate=INFERENCE_SAMPLE_RATE,
+                    chunk_duration=30.0,
+                    overlap_duration=2.0,
+                )
+            else:
+                samples_array = audio_samples_data.squeeze().numpy()
                 prediction = whisperPipeline(
                     samples_array,
                     return_timestamps=return_timestamps,
                     generate_kwargs=generate_kwargs,
                 )
+                full_text = prediction.get("text", "")
+                merged_chunks = prediction.get("chunks") if return_timestamps else None
 
             # finished
             st.badge("Success", icon=":material/check:", color="green")
@@ -247,16 +284,16 @@ if uploaded_files:
                 st.subheader("Process Output", divider=True)
                 transcribed_text, download_button = st.columns([3, 1])
                 transcribed_text.subheader("Transcription")
-                transcribed_text.markdown(prediction.get("text"))
-                if return_timestamps:
+                transcribed_text.markdown(full_text)
+                if return_timestamps and merged_chunks:
                     with transcribed_text.expander("Timeline"):
-                        transcribed_text.json(prediction.get("chunks"))
+                        transcribed_text.json(merged_chunks)
 
                 # download button
                 download_button.download_button(
                     label="Download Transctription",
                     type="primary",
-                    data=prediction.get("text"),
+                    data=full_text,
                     mime="plain/text",
                     icon=":material/download:",
                 )
