@@ -1,0 +1,17 @@
+---
+whisper:
+  model: "Whisper Tiny"
+  supported_models:
+    "Whisper Large": "openai/whisper-large-v3"
+    "Whisper Medium": "openai/whisper-medium"
+    "Whisper Small": "openai/whisper-small"
+    "Whisper Tiny": "openai/whisper-tiny"
+  revision: "main"
+
+huggingface:
+  apitoken: "your_api_token"
+  local_dir: "/tmp/cache/huggingface/local_repo"
+  cache_dir: "/tmp/cache/huggingface"
+
+features:
+  supported_audio_formats: ["mp3", "wav"]
