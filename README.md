@@ -30,7 +30,7 @@ scriptdump/
 
 ### Key Components
 
-**Audio Processing Pipeline**: Audio files are decoded using `torchcodec` and resampled to 16 kHz mono for Whisper inference. The pipeline supports waveform and spectrogram visualization via `matplotlib`, with audio preview in the browser.
+**Audio Processing Pipeline**: Audio files are decoded using `torchcodec` and resampled to 16 kHz mono for Whisper inference. Audio longer than 30 seconds is automatically split into 30-second chunks with 2-second overlap to improve transcription quality, then results are merged with globally-consistent timestamps. Stereo files are automatically converted to mono. The pipeline supports waveform and spectrogram visualization via `matplotlib`, with audio preview in the browser.
 
 **Model Management**: Whisper checkpoints are downloaded from HuggingFace Hub using `huggingface-hub`. Models are cached locally and loaded with `transformers` pipeline (`automatic-speech-recognition`). The app supports multiple model variants: Tiny, Small, Medium, and Large.
 
@@ -104,7 +104,7 @@ The application will start a Streamlit server and open in your default browser (
 
 1. **Select a model** — Choose from Whisper Tiny, Small, Medium, or Large in the sidebar. The model will be downloaded from HuggingFace on first use and cached for subsequent runs.
 
-2. **Upload an audio file** — Use the file uploader to select a `.mp3` or `.wav` file. Stereo audio is not supported; files must be mono.
+2. **Upload an audio file** — Use the file uploader to select a `.mp3` or `.wav` file. Audio longer than 30 seconds is automatically split into 30-second chunks with 2-second overlap for better accuracy. Stereo files are automatically converted to mono.
 
 3. **Configure inference parameters** — Set the source language (English, German, French, Italian, Spanish), choose between Transcribe or Translate tasks, and enable timestamped output for clips longer than 30 seconds.
 
