@@ -2,6 +2,8 @@
 
 A Streamlit-based web application for transcribing audio files using OpenAI Whisper models. Upload audio files, select a model, and get text transcriptions with an interactive UI displaying waveform and spectrogram visualizations.
 
+This project is a direct continuation/rewrite effort of the Speech2Text demo found in [LlamaChat](https://github.com/mcaimi/llamachat)
+
 ## Technical Description
 
 Scriptdump is a Python application built on top of Streamlit that leverages OpenAI's Whisper models for automatic speech recognition (ASR). The application provides a graphical interface for audio transcription with support for multiple Whisper model sizes and output formats.
