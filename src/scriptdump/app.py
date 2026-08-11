@@ -19,10 +19,13 @@ from scriptdump.libs.settings import Properties
 _pkg_dir = os.path.dirname(os.path.abspath(__file__))
 
 # load environment
-config_env: dict = dotenv_values(".env")
+config_env: dict = dotenv_values(os.path.join(_pkg_dir, ".env"))
 
 # load app settings
-config_filename: str = config_env.get("CONFIG_FILE", os.path.join(_pkg_dir, "parameters.yaml"))
+config_filename: str = config_env.get(
+    "CONFIG_FILE", os.path.join(_pkg_dir, "parameters.yaml")
+)
+print(config_filename)
 appSettings = Properties(config_file=config_filename)
 
 # define app pages
