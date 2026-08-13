@@ -24,7 +24,8 @@ try:
         from whisper_transcript.libs.utils.audio_pipelines import (
             resample,
             waveform,
-            spectrum,
+            power_spectrum,
+            mel_spectrum,
             split_audio_tensor,
             merge_chunk_results,
             stereoToMono,
@@ -225,11 +226,13 @@ if uploaded_files:
         wavepanel.subheader("Waveform")
         spectrumpanel.subheader("Spectrum")
         with _pyplot_lock:
-            plt.subplots(2, 1)
-            spec, _ = spectrum(decodedAudioFile)
+            plt.subplots(3, 1)
+            spec, _ = power_spectrum(decodedAudioFile)
+            mel, _ = mel_spectrum(decodedAudioFile)
             wave, _ = waveform(decodedAudioFile)
             wavepanel.pyplot(wave)
             spectrumpanel.pyplot(spec)
+            spectrumpanel.pyplot(mel)
         infopanel.subheader("Preview")
         infopanel.audio(audio_samples.data.numpy(), sample_rate=INFERENCE_SAMPLE_RATE)
         infopanel.subheader("Converted For Inference")
@@ -260,9 +263,6 @@ if uploaded_files:
         with st.spinner("** TRANSCRIBING AUDIO, PLEASE WAIT ... **"):
             duration_s = audio_samples.duration_seconds
 
-            if duration_s > 30.0 and not return_timestamps:
-                return_timestamps = True
-
             if duration_s > 30.0:
                 chunk_tensors = split_audio_tensor(
                     audio_samples_data,
@@ -272,8 +272,9 @@ if uploaded_files:
                 )
 
                 chunk_results: list[dict] = []
+                transcription_bar = st.progress(0, text="Processing Chunks...")
                 for i, chunk_tensor in enumerate(chunk_tensors):
-                    st.toast(f"Processing chunk {i + 1}/{len(chunk_tensors)}...")
+                    transcription_bar.progress((i/len(chunk_tensors)), text=f"Processing chunk {i + 1}/{len(chunk_tensors)}...")
                     chunk_array = chunk_tensor.squeeze().numpy()
                     prediction = whisperPipeline(
                         chunk_array,
@@ -284,6 +285,7 @@ if uploaded_files:
 
                 full_text, merged_chunks = merge_chunk_results(
                     chunk_results,
+                    return_timestamps=return_timestamps,
                     sample_rate=INFERENCE_SAMPLE_RATE,
                     chunk_duration=30.0,
                     overlap_duration=2.0,
