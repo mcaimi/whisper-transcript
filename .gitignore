@@ -13,3 +13,4 @@ wheels/
 
 # local files
 *.local
+**/testfiles/**
