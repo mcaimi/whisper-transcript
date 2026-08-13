@@ -28,6 +28,13 @@ config_filename: str = config_env.get(
 print(config_filename)
 appSettings = Properties(config_file=config_filename)
 
+# set page config (must be first Streamlit call)
+st.set_page_config(
+    page_title="Whisper AI Audio Transcription",
+    page_icon=":material/edit:",
+    layout="wide",
+)
+
 # define app pages
 audio_page = st.Page(
     "pages/whisper_audio.py", title="Audio to Text", icon=":material/speaker:"
@@ -37,9 +44,6 @@ enabled_sections = [audio_page]
 # setup application main page
 st.logo(os.path.join(_pkg_dir, "assets", "redhat.png"))
 pg = st.navigation(enabled_sections)
-st.set_page_config(
-    page_title="Whisper AI Audio Transcription", page_icon=":material/edit:"
-)
 
 # run app
 pg.run()
