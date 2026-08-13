@@ -13,7 +13,7 @@ except Exception as e:
     print(f"Caught fatal exception: {e}")
 
 # local imports
-from scriptdump.libs.settings import Properties
+from whisper_transcript.libs.settings import Properties
 
 # resolve paths relative to this file's directory
 _pkg_dir = os.path.dirname(os.path.abspath(__file__))

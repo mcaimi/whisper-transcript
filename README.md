@@ -1,4 +1,4 @@
-# Scriptdump
+# whisper-transcript
 
 A Streamlit-based web application for transcribing audio files using OpenAI Whisper models. Upload audio files, select a model, and get text transcriptions with an interactive UI displaying waveform and spectrogram visualizations.
 
@@ -6,15 +6,15 @@ This project is a direct continuation/rewrite effort of the Speech2Text demo fou
 
 ## Technical Description
 
-Scriptdump is a Python application built on top of Streamlit that leverages OpenAI's Whisper models for automatic speech recognition (ASR). The application provides a graphical interface for audio transcription with support for multiple Whisper model sizes and output formats.
+whisper-transcript is a Python application built on top of Streamlit that leverages OpenAI's Whisper models for automatic speech recognition (ASR). The application provides a graphical interface for audio transcription with support for multiple Whisper model sizes and output formats.
 
 ### Architecture
 
 ```
-scriptdump/
-├── src/scriptdump/
+whisper-transcript/
+├── src/whisper-transcript/
 │   ├── app.py                    # Streamlit app entry point, page navigation
-│   ├── __main__.py               # CLI entry point (scriptdump command)
+│   ├── __main__.py               # CLI entry point (whisper-transcript command)
 │   ├── pages/
 │   │   └── whisper_audio.py      # Whisper transcription UI page
 │   ├── libs/
@@ -61,7 +61,7 @@ Requires Python 3.11+ and [uv](https://github.com/astral-sh/uv) for dependency m
 ```bash
 # Clone the repository
 git clone <repo-url>
-cd scriptdump
+cd whisper-transcript
 
 # Create virtual environment and install dependencies
 uv sync
@@ -72,7 +72,7 @@ uv sync
 Copy and customize the default configuration:
 
 ```bash
-cp src/scriptdump/parameters.yaml src/scriptdump/parameters.yaml.local
+cp src/whisper-transcript/parameters.yaml src/whisper-transcript/parameters.yaml.local
 ```
 
 Edit `parameters.yaml.local` to set your preferred model, HuggingFace API token, and cache directories.
@@ -93,11 +93,11 @@ Edit `parameters.yaml.local` to set your preferred model, HuggingFace API token,
 ### Start the app
 
 ```bash
-# Using the installed scriptdump command
-scriptdump
+# Using the installed whisper-transcript command
+whisper-transcript
 
 # Or run directly
-uv run streamlit run src/scriptdump/app.py
+uv run streamlit run src/whisper-transcript/app.py
 ```
 
 The application will start a Streamlit server and open in your default browser (typically at `http://localhost:8501`).

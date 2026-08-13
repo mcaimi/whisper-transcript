@@ -18,10 +18,17 @@ try:
 
     with st.spinner("** LOADING INTERFACE... **"):
         # local imports
-        import scriptdump.libs.huggingface as hf
-        from scriptdump.libs.settings import Properties
-        from scriptdump.libs.utils import detect_accelerator
-        from scriptdump.libs.utils.audio_pipelines import resample, waveform, spectrum, split_audio_tensor, merge_chunk_results, stereoToMono
+        import whisper_transcript.libs.huggingface as hf
+        from whisper_transcript.libs.settings import Properties
+        from whisper_transcript.libs.utils import detect_accelerator
+        from whisper_transcript.libs.utils.audio_pipelines import (
+            resample,
+            waveform,
+            spectrum,
+            split_audio_tensor,
+            merge_chunk_results,
+            stereoToMono,
+        )
 except Exception as e:
     print(f"Caught fatal exception: {e}")
 
@@ -227,11 +234,19 @@ if uploaded_files:
 
     # begin conversion
     if samplesJson.get("data").get("channels") > 1:
-        audio_samples_data = stereoToMono(resample(
-            decodedAudioFile,
-            target_sample_rate=INFERENCE_SAMPLE_RATE,
-            target_num_channels=INFERENCE_CHANNELS,
-        )).get_all_samples().data if samplesJson.get("data").get("channels") > 1 else audio_samples.data
+        audio_samples_data = (
+            stereoToMono(
+                resample(
+                    decodedAudioFile,
+                    target_sample_rate=INFERENCE_SAMPLE_RATE,
+                    target_num_channels=INFERENCE_CHANNELS,
+                )
+            )
+            .get_all_samples()
+            .data
+            if samplesJson.get("data").get("channels") > 1
+            else audio_samples.data
+        )
     else:
         audio_samples_data = audio_samples.data
 
