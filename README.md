@@ -8,6 +8,8 @@ This project is a direct continuation/rewrite effort of the Speech2Text demo fou
 
 whisper-transcript is a Python application built on top of Streamlit that leverages OpenAI's Whisper models for automatic speech recognition (ASR). The application provides a graphical interface for audio transcription with support for multiple Whisper model sizes and output formats.
 
+![Screenshot](assets/screenshot.png)
+
 ### Architecture
 
 ```
