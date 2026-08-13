@@ -126,11 +126,12 @@ with st.spinner("** GETTING WHISPER MODEL FROM HUGGINGFACE... **"):
     except Exception as e:
         st.markdown(f"🚨 Error downloading model from HuggingFace: {e}")
 
-st.subheader("Upload an Audio File", divider=True)
+
+st.subheader("Upload a Media File", divider=True)
 uploaded_files = st.file_uploader(
     "Upload file(s) or directory",
     accept_multiple_files=False,
-    type=appSettings.config_parameters.features.supported_audio_formats,  # Add more file types as needed
+    type=appSettings.config_parameters.features.supported_audio_formats+appSettings.config_parameters.features.supported_video_formats,  # Add more file types as needed
 )
 
 # ok, check if we got files...
@@ -144,19 +145,24 @@ if uploaded_files:
 
     with st.spinner("** Load Samples from File... **"):
         # fetch file info
-        decodedAudioFile = AudioDecoder(uploaded_files)
-        metadata = decodedAudioFile.metadata
-        clipInfoJson = {
-            "name": uploaded_files.name,
-            "channels": metadata.num_channels,
-            "samples": metadata.sample_rate * metadata.duration_seconds_from_header,
-            "duration": metadata.duration_seconds_from_header,
-            "encoding": {
-                "format": metadata.codec,
-                "sample_rate": metadata.sample_rate,
-                "bitrate": metadata.bit_rate,
-            },
-        }
+        try:
+            decodedAudioFile = AudioDecoder(uploaded_files)
+            metadata = decodedAudioFile.metadata
+            clipInfoJson = {
+                "name": uploaded_files.name,
+                "channels": metadata.num_channels,
+                "samples": metadata.sample_rate * metadata.duration_seconds_from_header,
+                "duration": metadata.duration_seconds_from_header,
+                "encoding": {
+                    "format": metadata.codec,
+                    "sample_rate": metadata.sample_rate,
+                    "bitrate": metadata.bit_rate,
+                },
+            }
+        except Exception as audiodecoder_exception:
+            st.error(f"Error opening audio track: {audiodecoder_exception}")
+            # stop processing here.
+            st.stop()
 
     # display info
     audio_data.json(clipInfoJson)
