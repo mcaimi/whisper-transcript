@@ -134,3 +134,16 @@ Set via a `.env` file in the app directory:
 - `wav`
 
 Files are automatically resampled to 16 kHz mono regardless of input format.
+
+## Troubleshooting (known issues)
+
+### macOS: `torchcodec` import errors / missing ffmpeg libraries
+
+On macOS (notably macOS 26+), importing `torchcodec` can fail if dynamic libraries for ffmpeg are not visible.
+
+Workaround (Homebrew + temporary `DYLD_LIBRARY_PATH`):
+
+```bash
+brew install ffmpeg@7
+DYLD_LIBRARY_PATH="/opt/homebrew/opt/ffmpeg@7/lib:$DYLD_LIBRARY_PATH" uv run streamlit run main.py
+```
