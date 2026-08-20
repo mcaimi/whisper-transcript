@@ -310,3 +310,26 @@ def merge_chunk_results(
         return full_text, merged
     else:
         return full_text, None
+
+
+def format_timestamped_markdown(
+    merged_chunks: list[dict],
+) -> str:
+    lines: list[str] = []
+    for piece in merged_chunks:
+        text = piece.get("text", "").strip()
+        if not text:
+            continue
+        timestamps = piece.get("timestamp", [])
+        if timestamps and len(timestamps[0]) == 2:
+            start = timestamps[0][0]
+            end = timestamps[-1][1]
+            m_s, s_s = divmod(int(start), 60)
+            h_s, m_s = divmod(m_s, 60)
+            m_e, s_e = divmod(int(end), 60)
+            h_e, m_e = divmod(m_e, 60)
+            label = f"[{h_s:02d}:{m_s:02d}:{s_s:02d} - {h_e:02d}:{m_e:02d}:{s_e:02d}]"
+            lines.append(f"**{label}** {text}")
+        else:
+            lines.append(text)
+    return "\n\n".join(lines)

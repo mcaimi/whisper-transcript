@@ -28,6 +28,7 @@ try:
             mel_spectrum,
             split_audio_tensor,
             merge_chunk_results,
+            format_timestamped_markdown,
             stereoToMono,
         )
 except Exception as e:
@@ -312,11 +313,22 @@ if uploaded_files:
                     with transcribed_text.expander("Timeline"):
                         transcribed_text.json(merged_chunks)
 
-                # download button
+                download_button.subheader("Download")
                 download_button.download_button(
-                    label="Download Transctription",
+                    label="Plain Text",
                     type="primary",
                     data=full_text,
-                    mime="plain/text",
+                    file_name="transcription.txt",
+                    mime="text/plain",
                     icon=":material/download:",
                 )
+                if return_timestamps and merged_chunks:
+                    timestamped_md = format_timestamped_markdown(merged_chunks)
+                    download_button.download_button(
+                        label="Timestamped Markdown",
+                        type="secondary",
+                        data=timestamped_md,
+                        file_name="transcription.md",
+                        mime="text/markdown",
+                        icon=":material/schedule:",
+                    )
